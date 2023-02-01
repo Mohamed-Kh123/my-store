@@ -25,22 +25,27 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::get();
-        $brands = Brand::get();
-        $sizes = Size::get();
-        $colors = Color::get();
-        $dimensions = Dimension::get();
-        $tags = Tag::get();
+        $categories = Category::select('name','id')->get();
+        $brands = Brand::select('name','id')->get();
+        $sizes = Size::select('size','id')->get();
+        $colors = Color::select('name','id')->get();
+        $dimensions = Dimension::select('dimension','id')->get();
+        $tags = Tag::select('name','id')->get();
 
 
-        $products = Product::query()->with('category');
+        $products = Product::with(['category' => function($q){
+            return $q->select('name', 'id');
+        }]);
+
+
         if($request->has('category')){
-            $values = array();
-            $values = $request->category;
-            $products->whereIn('category_id', $values);
+            $products->whereHas('category', function($q){
+                $values = array();
+                $values = request()->category;
+                $q->whereIn('category_id', $values);
+            });
         }
         if($request->has('brand')){
-
             $products->whereHas('brands', function($q){
                 $values = array();
                 $values = request()->brand;
@@ -89,10 +94,6 @@ class CategoryController extends Controller
         }
         
         $products = $products->get();
-        
-        if($request->expectsJson()){
-            return $products;
-        }
         
         return view('front.category', [
             'categories' => $categories,

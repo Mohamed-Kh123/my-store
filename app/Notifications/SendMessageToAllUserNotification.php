@@ -8,11 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendMessageToUserNotifications extends Notification implements ShouldQueue
+class SendMessageToAllUserNotification extends Notification
 {
     use Queueable;
-
-
 
     /**
      * Create a new notification instance.
@@ -21,6 +19,7 @@ class SendMessageToUserNotifications extends Notification implements ShouldQueue
      */
     public function __construct(protected $notification)
     {
+        //
     }
 
     /**
@@ -33,14 +32,6 @@ class SendMessageToUserNotifications extends Notification implements ShouldQueue
     {
         return ['mail'];
     }
-
-    public function viaQueues()
-    {
-        return [
-            'mail' => 'notification',
-        ];
-    }
-    
 
     /**
      * Get the mail representation of the notification.

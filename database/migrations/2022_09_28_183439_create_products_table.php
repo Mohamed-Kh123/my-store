@@ -22,7 +22,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->unsignedBigInteger('price');
             $table->unsignedBigInteger('quantity')->default(0);
-            $table->enum('dimension', ['40x60cm','60x90cm','80x120cm'])->nullable();
             $table->enum('status', ['active', 'draft']);
             $table->string('discount')->nullable();
             $table->timestamps();

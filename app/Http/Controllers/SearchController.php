@@ -19,7 +19,7 @@ class SearchController extends Controller
         }
         
         $products = $products::with('category')->where('name', 'like', '%'.$name.'%')->simplePaginate(10);            
-        return view('front.results', [
+        return view('front.results', [  
             'products' => $products,
         ]);
 

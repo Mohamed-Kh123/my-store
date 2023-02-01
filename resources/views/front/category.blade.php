@@ -190,7 +190,7 @@
                             <div class="categori-checkbox">
                                 @foreach($brands as $brand)
                                     <ul>
-                                        <li><input type="checkbox" name="brand[]" value="{{$brand->id}}"@if(request()->brand == $brand->id) checked @endif> {{$brand->name}}</li>
+                                        <li><input type="checkbox" name="brand[]" value="{{$brand->id}}" @if(request()->brand == $brand->id) checked @endif> {{$brand->name}}</li>
                                     </ul>
                                 @endforeach
                             </div>
@@ -202,7 +202,7 @@
                             <div class="categori-checkbox">
                                     <ul>
                                         @foreach($categories as $category)
-                                        <li><input type="checkbox" name="category[]" value="{{$category->id}}" @if(request()->category == $category->id) checked @endif> {{$category->name}} ()</li>
+                                        <li><input type="checkbox" name="category[]" value="{{$category->id}}" @if(old('category', $category->id) == request()->category) checked @endif> {{$category->name}} ()</li>
                                         @endforeach
                                     </ul>
                             </div>

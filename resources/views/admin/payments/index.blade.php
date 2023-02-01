@@ -30,7 +30,7 @@
     <tbody>
         @foreach($payments as $payment)
         <tr>
-            <td>{{ $payment->order->number }}</td>
+            <td>{{ $payment->order->number ?? null }}</td>
             <td>{{ $payment->amount }}</td>
             <td>{{ $payment->currancy }}</td>
             <td>{{ $payment->payment_method }}</td>

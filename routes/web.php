@@ -141,11 +141,12 @@ Route::get('orders/{order}/payment-intent/cancel', [PaymentsController::class, '
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 
 
-// Route::get('/test-loay', function(){
-//     $wishLists = WishList::whereNotNull('user_id')->get();
-//     foreach($wishLists as $wishList){
-//         $users = User::where('id', $wishList['user_id'])->get();
-//         Notification::send($users, new WishListNotification());
-//     }
-    
-// });
+
+Route::get('/test', function(){
+
+    $product = Product::with(['category' => function($q){
+        $q->select('id', 'name');
+    }, 'brands', 'dimensions'])->get();
+
+    return ($product);    
+});

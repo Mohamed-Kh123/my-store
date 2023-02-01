@@ -86,6 +86,8 @@ class NotificationsController extends Controller
             
             $user = User::where('id', $request->user_id)->first();
             Notification::send($user, new SendMessageToUserNotifications($notification));
+
+            return redirect()->back();
         }
 
         if($request->type == "all_user"){
@@ -109,7 +111,7 @@ class NotificationsController extends Controller
     
             $notification = $admin->notifications()->create([
                 'id' => Str::uuid(),
-                'type' => SendMessageToUserNotifications::class,
+                'type' => SendMessageToAllUserNotifications::class,
                 'data' => $data,
             ]);
             $batch = Bus::batch([])->onQueue('notification')->dispatch();

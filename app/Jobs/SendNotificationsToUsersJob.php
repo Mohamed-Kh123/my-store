@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use App\Notifications\SendMessageToAllUserNotification;
 use App\Notifications\SendMessageToUserNotifications;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -35,7 +36,7 @@ class SendNotificationsToUsersJob implements ShouldQueue
     public function handle()
     {
         foreach($this->users as $user){
-            $user->notify(new SendMessageToUserNotifications($this->notification));
+            $user->notify(new SendMessageToAllUserNotification($this->notification));
         }
     }
 }
