@@ -34,7 +34,7 @@ class CategoryController extends Controller
 
 
         $products = Product::with(['category' => function($q){
-            return $q->select('name', 'id');
+            $q->select('name', 'id');
         }]);
 
 
@@ -91,6 +91,11 @@ class CategoryController extends Controller
                     $q->orderBy(DB::raw('sum("ratings") / count("ratings")'), 'desc');
                 });
             }
+        }
+
+        if($request->expectsJson()){
+            $data = $products->paginate();
+            return response()->json(['data' => $data]);
         }
         
         $products = $products->get();

@@ -21,7 +21,6 @@ class ProductController extends Controller
     public function show($slug)
     {   
         $product = Product::with('dimensions')->where('slug', '=', $slug)->firstOrFail();
-        // dd($product->dimensions);
         $productsInSameCategory = Product::where('category_id', '=', $product->category_id)->limit(15)->get();
         
         

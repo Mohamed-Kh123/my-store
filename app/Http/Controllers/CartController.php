@@ -29,6 +29,7 @@ class CartController extends Controller
     public function index()
     {
         $cart = $this->cart;
+        
         $coupon = Session::get('coupon');
 
         return view('front.cart', [

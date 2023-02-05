@@ -26,7 +26,6 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity,
             'relations' => [
                 'category' => new CategoryResource($this->whenLoaded('category')),
-                'dimenstions' => $this->dimensions, 
             ]
         ];
     }

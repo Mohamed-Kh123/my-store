@@ -50,8 +50,7 @@
                                         <td class="quantity">
                                             <label>Quantity</label>
                                             <div class="cart-plus-minus">
-                                                    
-                                                    <input class="cart-plus-minus-box item-quantity" data-id="{{$item->id}}" name="quantity" value="{{$item->quantity}}">
+                                                    <input class="cart-plus-minus-box item-quantity" id="item-quantity" data-id="{{$item->id}}" name="quantity" value="{{$item->quantity}}">
                                                     <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
                                                     <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
                                             </div>

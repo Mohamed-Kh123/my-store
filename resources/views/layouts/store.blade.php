@@ -432,7 +432,9 @@
     @yield('script')
     <script>
         (function($) {
-            $('.item-quantity').on('change', function(e) {
+            $('input#item-quantity').on('click', function(e) {
+                // alert('hi')
+                e.preventDefault();
                 $.ajax({
                     url: '/cart/' + $(this).data('id'),
                     method: 'post',
@@ -442,8 +444,8 @@
                     }
                 })
             })
-
         })(jQuery);
+
         (function($) {
             $('a#removeCart').on('click', function(e) {
                 e.preventDefault();
@@ -547,6 +549,75 @@
                 }
             })
         }
+
+        (function($){
+            $('#category-select').on('change', function(e){
+                $.ajax({
+                    method: "get",
+                    url: '/categories',
+                    success: function(response) {
+                        if(response.data){
+                            $('#prod-det').empty();
+                            for(i in response.data){
+                                product = response.data[i];
+                                $('#prod-det').append(`
+                                                <div class="col-lg-4 col-md-4 col-sm-6 mt-40" >
+                                                    <!-- single-product-wrap start -->
+                                                    <div class="single-product-wrap">
+                                                        <div class="product-image">
+                                                            <a href="${product.link}">
+                                                                <img src="${product.image_url}"
+                                                                    alt="Li's Product Image">
+                                                            </a>
+                                                            <span class="sticker">New</span>
+                                                        </div>
+                                                        <div class="product_desc">
+                                                            <div class="product_desc_info">
+                                                                <div class="product-review">
+                                                                    <h5 class="manufacturer">
+                                                                        <a href="${product.link}"></a>
+                                                                    </h5>
+                                                                </div>
+                                                                <h4><a class="product_name"
+                                                                        href="${product.link}">${product.name}</a></h4>
+                                                                <div class="price-box">
+                                                                    <span class="new-price">$${product.price}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="add-actions">
+                                                                <ul class="add-actions-link">
+                                                                    <form action="{{route('cart.store')}}" method="post">
+                                                                        <input type="hidden" name="product_id" value="${product.id}">
+                                                                        @csrf
+                                                                        <button type="submit"> 
+                                                                        <li class="add-cart active">Add to cart</li>
+                                                                        </button>
+                                                                    </form>
+                                                                    <li>
+                                                                        <a href="#" title="quick view"
+                                                                        class="quick-view-btn" data-toggle="modal" 
+                                                                        data-target="#exampleModalCenter">
+                                                                        <i class="fa fa-eye"></i>
+                                                                        </a>
+                                                                    </li>
+                                                                        <form action="{{ route('wishlist.store') }}" method="post">
+                                                                            @csrf
+                                                                            <input type="hidden" name="product_id" value="${product.id}">
+                                                                            <button type="submit" class="heart"><a class="links-details" href="#"><i class="fa fa-heart-o"></i></a></button>
+                                                                        </form>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- single-product-wrap end -->
+                                                </div>
+                                            `);
+                            };
+                        }
+                    }
+                });
+            })
+        })(jQuery)
     </script>
 </body>
 

@@ -22,11 +22,7 @@
     </head>
     <body class="antialiased">
         <ol>
-            @foreach ($products as $product)
-            <li>
-                {{$product->name}} by({{$product->category->name}})
-            </li>
-            @endforeach
+            
         </ol>
     </body>
 </html>
