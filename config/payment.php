@@ -1,5 +1,7 @@
 <?php 
 
+$driver = '';
+
 return [
-    'driver' => 'paypal',
+    'driver' => $driver,
 ];

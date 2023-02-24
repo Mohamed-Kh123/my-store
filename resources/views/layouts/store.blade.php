@@ -53,9 +53,6 @@
 </head>
 
 <body>
-    @php
-        $user = App\Models\User::where('type', 'super-admin')->first();
-    @endphp
     <!--[if lt IE 8]>
   <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
  <![endif]-->
@@ -431,17 +428,30 @@
 
     @yield('script')
     <script>
-        (function($) {
-            $('input#item-quantity').on('click', function(e) {
-                // alert('hi')
+        (function($){  
+            $('input#item-quantity').on('change', function(e) {
+                var id = $(this).data('id');
+                var total_price = $(this).val() * $(`.${id}price`).data('price');
+                
                 e.preventDefault();
                 $.ajax({
-                    url: '/cart/' + $(this).data('id'),
+                    url: '/cart/' +  $(this).data('id'),
                     method: 'post',
                     data: {
                         quantity: $(this).val(),
                         _token: $("meta[name='csrf-token']").attr("content")
-                    }
+                    },
+                    success: function(response){
+                        console.log(response);
+                        $(`span#${id}total`).empty();
+                        $(`span#${id}total`).append(`$${total_price}`);
+                        $(`span.total`).empty();
+                        $(`span.total`).append(`$${response.total} <span class="cart-item-count quantity">${response.quantity}</span>`);
+                        $(`span.TOTAL`).empty();
+                        $(`span.TOTAL`).append(`$${response.total}`);
+                        $(`span.subTotal`).empty();
+                        $(`span.subTotal`).append(`$${response.subTotal}`);
+                    },
                 })
             })
         })(jQuery);
@@ -449,8 +459,7 @@
         (function($) {
             $('a#removeCart').on('click', function(e) {
                 e.preventDefault();
-                // alert('hi')
-                let id = $(this).data('id');
+                var id = $(this).data('id');
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "You won't be able to revert this!",
@@ -465,7 +474,7 @@
                             'Deleted!',
                             'Your file has been deleted.',
                             'success'
-                        )
+                        );
                         $.ajax({
                             url: '/cart/' + id,
                             method: 'delete',
@@ -473,15 +482,19 @@
                                 _token: $("meta[name='csrf-token']").attr("content")
                             },
                             success: function(response) {
-                                $(`#${id}`).remove();
+                                $(`.${id}`).remove();
+                                $(`span.total`).empty();
+                                $(`span.total`).append(`$${response.total} <span class="cart-item-count quantity">${response.quantity}</span>`);
+                                $(`span.TOTAL`).empty();
+                                $(`span.TOTAL`).append(`$${response.total}`);
                             }
-                        })
+                        });
                     }
                 })
             })
         })(jQuery);
 
-        function addToCart(product_id, user_id, event) {
+        function addToCart(product_id, event) {
             event.preventDefault();
             $.ajaxSetup({
                 headers: {
@@ -489,11 +502,10 @@
                 }
             });
             $.ajax({
-                url: '/cart',
+                url: '/ cart',
                 method: 'post',
                 data: {
                     product_id: product_id,
-                    user_id: user_id,
                 },
                 dataType: 'json',
                 success: function(data) {
@@ -501,27 +513,97 @@
                         Swal.fire(
                             'Item added to cart!'
                         );
+                        $(`span.total`).empty();
+                        $(`span.total`).append(`$${data.total} <span class="cart-item-count quantity">${data.quantity}</span>`);
+                        $(`span.TOTAL`).empty();
+                        $(`span.TOTAL`).append(`$${data.total}`);
+                        $(`.minicart-product-list`).empty();
+                        for(i in data.carts){
+                            item = data.carts[i];
+                            $(`.minicart-product-list`).append(`   
+                                    <li id="${item.id}">
+                                        <a href="${item.product.link}" class="minicart-product-image">
+                                            <img src="${item.product.image_url}" alt="cart products">
+                                        </a>
+                                        <div class="minicart-product-details">
+                                            <h6><a href="${item.product.link}">${item.product.name}</a></h6>
+                                            <span>$${item.quantity * item.product.last_price}</span>
+                                        </div>
+                                        <a href="" id="removeCart" data-id="${item.id}" class="close" title="Remove">
+                                            <i class="fa fa-close"></i>
+                                        </a>
+                                    </li>
+                                        `);
+                        }
                     }
 
                 },
             })
         }
+        function addtoCartJs(product_id, event){
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function (){
+
+            }
+        }
+
         (function($) {
             $('#removeCoupon').on('click', function(e) {
-                e.preventDefault();
                 let id = $(this).data('id');
                 $.ajax({
                     method: "post",
-                    url: '/coupon/remove/' + id,
+                    url: '/coupon/remove',
                     data: {
                         _token: $("meta[name='csrf-token']").attr("content"),
                     },
                     success: function(response) {
-                        $(`#${id}`).hide();
+                        $(`#${id}`).remove();
                     }
                 });
             })
         })(jQuery);
+
+        (function($) {
+            $('#addCoupon').on('click', function(e) {
+                var token = $("meta[name='csrf-token']").attr("content");
+                e.preventDefault();
+                $.ajax({
+                    method: "post",
+                    url: '/coupons',
+                    data: {
+                        _token: token,
+                        code: $('input#code').val(),
+                    },
+                    success: function(response) {
+                        if(response.message){
+                            Swal.fire(
+                                response.message
+                            );      
+                        }else{
+                            Swal.fire(
+                                "Coupon has been applied!"
+                            );
+                            $('#coupon').empty();  
+                            $('#coupon').append(`<li>Subtotal<span class="subTotal">${response.subTotal}</span></li>
+                            <li id="${response.id}">Discount<span>-${response.discount}</span> 
+                                            <form action="${response.route}" method=post>
+                                                @csrf
+                                                <button type="submit">
+                                                    <a href="" id="removeCoupon" data-id="${response.id}" class="removeCoupon"><img src="{{asset('assets/front/images/trash-solid.svg')}}" class="trash"></a> 
+                                                </button>   
+                                            </form>
+                                            </li>
+                                            <li>Total <span class="TOTAL" data-total="${response.newTotal}">${response.newTotal}</span></li>
+                                            `);
+                            $('.coupon').remove();
+                            $(`span.total`).empty();
+                            $(`span.total`).append(`$${response.newTotal} <span class="cart-item-count quantity">${response.quantity}</span>`);
+                        }
+                    }
+                });
+            })
+        })(jQuery);
+        
 
         function addToWishList(product_id, event) {
             event.preventDefault();
@@ -542,6 +624,8 @@
                         'Item already in wishlist!',
                     )
                     }else{
+                        $('span#count').empty();
+                        $('span#count').append(result);
                         Swal.fire(
                             'Item added to wishlist!',
                         )
@@ -550,74 +634,7 @@
             })
         }
 
-        (function($){
-            $('#category-select').on('change', function(e){
-                $.ajax({
-                    method: "get",
-                    url: '/categories',
-                    success: function(response) {
-                        if(response.data){
-                            $('#prod-det').empty();
-                            for(i in response.data){
-                                product = response.data[i];
-                                $('#prod-det').append(`
-                                                <div class="col-lg-4 col-md-4 col-sm-6 mt-40" >
-                                                    <!-- single-product-wrap start -->
-                                                    <div class="single-product-wrap">
-                                                        <div class="product-image">
-                                                            <a href="${product.link}">
-                                                                <img src="${product.image_url}"
-                                                                    alt="Li's Product Image">
-                                                            </a>
-                                                            <span class="sticker">New</span>
-                                                        </div>
-                                                        <div class="product_desc">
-                                                            <div class="product_desc_info">
-                                                                <div class="product-review">
-                                                                    <h5 class="manufacturer">
-                                                                        <a href="${product.link}"></a>
-                                                                    </h5>
-                                                                </div>
-                                                                <h4><a class="product_name"
-                                                                        href="${product.link}">${product.name}</a></h4>
-                                                                <div class="price-box">
-                                                                    <span class="new-price">$${product.price}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="add-actions">
-                                                                <ul class="add-actions-link">
-                                                                    <form action="{{route('cart.store')}}" method="post">
-                                                                        <input type="hidden" name="product_id" value="${product.id}">
-                                                                        @csrf
-                                                                        <button type="submit"> 
-                                                                        <li class="add-cart active">Add to cart</li>
-                                                                        </button>
-                                                                    </form>
-                                                                    <li>
-                                                                        <a href="#" title="quick view"
-                                                                        class="quick-view-btn" data-toggle="modal" 
-                                                                        data-target="#exampleModalCenter">
-                                                                        <i class="fa fa-eye"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                        <form action="{{ route('wishlist.store') }}" method="post">
-                                                                            @csrf
-                                                                            <input type="hidden" name="product_id" value="${product.id}">
-                                                                            <button type="submit" class="heart"><a class="links-details" href="#"><i class="fa fa-heart-o"></i></a></button>
-                                                                        </form>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- single-product-wrap end -->
-                                                </div>
-                                            `);
-                            };
-                        }
-                    }
-                });
-            })
-        })(jQuery)
+        
     </script>
 </body>
 

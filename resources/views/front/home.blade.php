@@ -61,8 +61,7 @@
                                             <div class="add-actions">
                                                 <ul class="add-actions-link">
                                                         <input type="hidden" name="product_id" value="{{$latestProduct->id}}">
-                                                        <input type="hidden" name="user_id" value="{{Auth::id()}}">
-                                                        <a href="" onclick="addToCart({{$latestProduct->id}}, {{Auth::id() ?? 'null'}}, event)"><li class="add-cart">Add to cart</li></a>
+                                                        <a href="" onclick="addToCart({{$latestProduct->id}}, event)"><li class="add-cart">Add to cart</li></a>
                                                         <a onclick="addToWishList({{$latestProduct->id}}, event)"><li class="wishlist"><i class="fa fa-heart-o"></i></li></a>
                                                     
                                                 </ul>
@@ -123,7 +122,7 @@
                                                 <ul class="add-actions-link">
                                                     
                                                         <input type="hidden" name="product_id" value="{{$bestSale->id}}">
-                                                        <a onclick="addToCart({{$bestSale->id}}, {{Auth::id() ?? 'null'}}, event)"><li class="add-cart">Add to cart</li></a>
+                                                        <a onclick="addToCart({{$bestSale->id}}, event)"><li class="add-cart">Add to cart</li></a>
 
                                                         <a onclick="addToWishList({{$bestSale->id}}, event)"><li class="wishlist"><i class="fa fa-heart-o"></i></li></a>
                                                     
@@ -182,7 +181,7 @@
                                             <div class="add-actions">
                                                 <ul class="add-actions-link">
                                                         <input type="hidden" name="product_id" value="{{$latestProduct->id}}">
-                                                        <a onclick="addToCart({{$latestProduct->id}}, {{Auth::id() ?? 'null'}}, event)"><li class="add-cart">Add to cart</li></a>
+                                                        <a onclick="addToCart({{$latestProduct->id}}, event)"><li class="add-cart">Add to cart</li></a>
 
                                                         <a onclick="addToWishList({{$latestProduct->id}}, event)"><li class="wishlist"><i class="fa fa-heart-o"></i></li></a>
 

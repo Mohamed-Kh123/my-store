@@ -4,9 +4,10 @@ namespace App\Repositories\Payment;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
-interface PaymentMethod{
+interface PaymentMethod
+{
 
-    public function create(Order $order);
-    public function confirm(Order $order);
+    public function create($id);
+    public function confirm($id);
 
 }

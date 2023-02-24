@@ -52,6 +52,6 @@ Route::get('/test', function(){
     // $user = Auth::user();
 
     $user = PersonalAccessToken::findToken("6|MyXGd1hNjaNUhbJodmlusRRDVKVfbWUHW2eaKHRB");
-
+    
     return $user->id;
 });

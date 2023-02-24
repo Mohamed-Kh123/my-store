@@ -11,7 +11,7 @@
 
 <body>
     <!-- Display a payment form -->
-    <form id="payment-form">
+    <form id="payment-form" method="post">
         <div id="payment-element">
             <!--Stripe.js injects the Payment Element-->
         </div>

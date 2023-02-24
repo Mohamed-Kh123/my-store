@@ -4,8 +4,8 @@
         <div class="container">
             <div class="breadcrumb-content">
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li class="active">Shopping Cart</li>
+                    <li><a href="{{route('home')}}">{{__('Home')}}</a></li>
+                    <li class="active">{{__('Shopping Cart')}}</li>
                 </ul>
             </div>
         </div>
@@ -29,33 +29,31 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th class="li-product-remove">remove</th>
-                                        <th class="li-product-thumbnail">images</th>
-                                        <th class="cart-product-name">Product</th>
-                                        <th class="li-product-price">Unit Price</th>
-                                        <th class="li-product-quantity">Quantity</th>
-                                        <th class="li-product-subtotal">Total</th>
+                                        <th class="li-product-remove">{{__('remove')}}</th>
+                                        <th class="li-product-thumbnail">{{__('images')}}</th>
+                                        <th class="cart-product-name">{{__('Product')}}</th>
+                                        <th class="li-product-price">{{__('Unit Price')}}</th>
+                                        <th class="li-product-quantity">{{__('Quantity')}}</th>
+                                        <th class="li-product-subtotal">{{__('Total')}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($cart->all() as $item)
                                     
-                                    <tr id="{{$item->id}}">
+                                    <tr class="{{$item->id}}">
                                         
                                         <td class="li-product-remove"><a href="" data-id="{{$item->id}}" id="removeCart"><i class="fa fa-times"></i></a></td>
                                         <td class="li-product-thumbnail"><a href="{{route('single.product', $item->product->slug)}}"><img
                                                     src="{{$item->product->image_url}}" alt="Li's Product Image" width="60" height="60"></a></td>
                                         <td class="li-product-name"><a href="{{route('single.product', $item->product->slug)}}">{{$item->product->name}}</a></td>
-                                        <td class="li-product-price"><span class="amount">${{$item->product->price}}</span></td>
+                                        <td class="li-product-price"><span class="{{$item->id}}price" data-price="{{$item->product->last_price}}">{{$item->product->last_price}}</span></td>
                                         <td class="quantity">
                                             <label>Quantity</label>
-                                            <div class="cart-plus-minus">
+                                            <div>
                                                     <input class="cart-plus-minus-box item-quantity" id="item-quantity" data-id="{{$item->id}}" name="quantity" value="{{$item->quantity}}">
-                                                    <div class="dec qtybutton"><i class="fa fa-angle-down"></i></div>
-                                                    <div class="inc qtybutton"><i class="fa fa-angle-up"></i></div>
                                             </div>
                                         </td>
-                                        <td class="product-subtotal"><span class="amount">${{$item->product->price * $item->quantity}}</span></td>
+                                        <td class="product-subtotal"><span class="amount" id="{{$item->id}}total">${{$item->product->last_price * $item->quantity}}</span></td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -66,12 +64,9 @@
                                 <div class="coupon-all">
                                     @if(!$coupon)
                                     <div class="coupon">
-                                        <form action="{{route('coupons.apply')}}" method="post">
-                                            @csrf
                                             <input id="code" class="input-text" name="code"
-                                                placeholder="Coupon code" type="text">
-                                            <button class="button" name="apply_coupon" type="submit">Apply coupon</button>
-                                        </form>
+                                                placeholder="{{__('Coupon code')}}" type="text">
+                                            <button id="addCoupon" type="submit">{{__('Apply coupon')}}</button>
                                     </div>
                                     @endif
                                 </div>
@@ -80,17 +75,20 @@
                         <div class="row">
                             <div class="col-md-5 ml-auto">
                                 <div class="cart-page-total">
-                                    <h2>Cart totals</h2>
-                                    <ul>
-                                        <li>Subtotal <span>${{$cart->subTotal()}}</span></li>
+                                    <h2>{{__('Cart totals')}}</h2>
+                                    <ul id="coupon"> 
+                                        <li>{{__('Subtotal')}} <span class="subTotal">${{$cart->subTotal()}}</span></li>
                                         @if($coupon)
-                                        <li id="{{$coupon['id']}}">Discount<span>-${{$discount}}</span> 
-                                            <a href="" id="removeCoupon" data-id="{{$coupon['id']}}" class="removeCoupon"><img src="{{asset('assets/front/images/trash-solid.svg')}}" class="trash"></a>    
-                                        </li>
+                                            <li id="{{$coupon['id']}}">Discount<span>-${{$discount}}</span> 
+                                            <form action="{{route('coupons.remove')}}" method="post">
+                                                @csrf
+                                                <button type="submit"><a id="removeCoupon" ><img src="{{asset('assets/front/images/trash-solid.svg')}}" class="trash"></a>    </button>
+                                            </form>
+                                            </li>
                                         @endif
-                                        <li>Total <span>${{$cart->total() - $discount}}</span></li>
+                                            <li>{{__('Total')}} <span class="TOTAL" data-total="{{$cart->total() - $discount}}">${{$cart->total() - $discount}}</span></li>
                                     </ul>
-                                    <a href="{{route('checkout')}}">Proceed to checkout</a>
+                                    <a href="{{route('checkout')}}">{{__('Proceed to checkout')}}</a>
                                 </div>
                             </div>
                         </div>

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->float('amount')->default(0);
             $table->date('start_date');
             $table->date('end_date');
-            $table->unsignedSmallInteger('max_use')->default(0);
             $table->timestamps();
         });
     }

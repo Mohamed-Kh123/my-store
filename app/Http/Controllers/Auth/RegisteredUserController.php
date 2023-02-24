@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Statistic;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -46,6 +48,16 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'phone_number' => $request->phone_number,
         ]);
+
+        $reg = new Statistic();
+
+        $value = $reg->getValue('user_reg');
+        if($value){
+            $reg->setValue('user_reg', DB::raw('value + 1'));
+        }
+        if(!$value){
+            $reg->setValue('user_reg', 1);
+        }
 
         event(new Registered($user));
 

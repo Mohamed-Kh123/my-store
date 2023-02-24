@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\OrderCreated;
 use App\Events\PaymentCreated;
+use App\Listeners\AddOrderToStatistics;
 use App\Listeners\CancelOrderListener;
 use App\Listeners\ChangeOrderPaymentStatusListnere;
 use App\Listeners\CompleteOrderPaymentProcessListener;
@@ -34,6 +35,7 @@ class EventServiceProvider extends ServiceProvider
             DeleteCouponListener::class,
             CompleteOrderPaymentProcessListener::class,
             CancelOrderListener::class,
+            AddOrderToStatistics::class,
         ],
 
         PaymentCreated::class => [

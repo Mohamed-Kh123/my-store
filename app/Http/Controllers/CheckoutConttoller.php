@@ -7,6 +7,7 @@ use App\Jobs\CancelOrderJob;
 use App\Jobs\SendEmailToUserToPayOrder;
 use App\Models\Cart;
 use App\Models\Coupon;
+use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
 use App\Repositories\Cart\CartRepository;
@@ -47,7 +48,8 @@ class CheckoutConttoller extends Controller
     public function create()
     {   
         $coupon = Session::get('coupon');
-    
+        $delivery = new Delivery();
+
         return view('front.checkout',[
             'coupon' => $coupon,
             'discount' => $coupon['discount'] ?? 0,
@@ -55,6 +57,7 @@ class CheckoutConttoller extends Controller
             'user' => Auth::user(),
             'order' => new Order(),
             'countries' => Countries::getNames(),
+            'delivery' => $delivery,
         ]);
     }
     
@@ -84,6 +87,7 @@ class CheckoutConttoller extends Controller
             'shipping_country_name' => 'nullable',
             'shipping_postcode' => 'nullable',
             'shipping_state' => 'nullable',
+            'delivery_name' => 'required',
         ]);
 
         DB::beginTransaction();
@@ -91,46 +95,23 @@ class CheckoutConttoller extends Controller
         
 
         try{
-            $coupon = Session::get('coupon');
-            $newTotal = $this->cart->total() - ($coupon['discount'] ?? 0);
             
+            $order = new Order();
+            //createOrder is a method in the Order model
+            
+            $chec = $order->createOrder($this->cart, $request);
 
-            $order = Order::create([
-                'billing_name' => $request->billing_name,
-                'billing_phone_number' => $request->billing_phone_number,
-                'billing_address' => $request->billing_address,
-                'billing_email' => $request->billing_email,
-                'billing_city' => $request->billing_city,
-                'billing_country_name' => $request->billing_country_name,
-                'billing_postcode' => $request->billing_postcode,
-                'billing_state' => $request->billing_state,
-                'shipping_name' => $request->shipping_name,
-                'shipping_phone_number' => $request->shipping_phone_number,
-                'shipping_address' => $request->shipping_address,
-                'shipping_email' => $request->shipping_email,
-                'shipping_city' => $request->shipping_city,
-                'shipping_country_name' => $request->shipping_country_name,
-                'shipping_postcode' => $request->shipping_postcode,
-                'shipping_state' => $request->shipping_state,
-                'user_id' => Auth::id() ?? null,
-                'cookie_id' => $this->getCookieId('orders'),
-                'total' => $newTotal,
-            ]);
 
-            $items = [];
-            foreach($this->cart->all() as $item){
-                $items[]= [
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' =>  $item->product->price,
-                ];
-                
-            }
-            DB::table('order_items')->insert($items);
+            // create delivery for the order
+            $delivery = new Delivery();
+            $delivery->order_id = $chec->id;
+            $delivery->delivery_price = $chec->total + config('app.delivery_price');
+            $delivery->name = $request->delivery_name;
+            $delivery->save();
             DB::commit();
 
-            event(new OrderCreated($order));
+            event(new OrderCreated($chec));
+
              
 
             return redirect()->route('orders', $order->id);

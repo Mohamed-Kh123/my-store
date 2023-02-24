@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class OrderItem extends Pivot
 {
     use HasFactory;
-
-    protected $timestamps = false;
+    protected $table = "order_items";
+    // protected $timestamps = true;
 
     public function order()
     {

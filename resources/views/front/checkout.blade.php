@@ -108,6 +108,16 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="checkout-form-list">
+                                        <label>Delivery Name</label>
+                                        <select name="delivery_name">
+                                            <option value="حمامة">حمامة</option>
+                                            <option value="يمامة">يمامة</option>
+                                            <option value="حودة">حودة</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="checkout-form-list">
                                         <label>Address <span class="required">*</span></label>
                                         <input placeholder="Street address" type="text" name="billing_address" value="{{old('billing_address', $order->billing_address)}}">
                                     </div>
@@ -242,31 +252,45 @@
                         <div class="your-order">
                             <h3>Your order</h3>
                             <div class="your-order-table table-responsive">
-                                <table class="table">
-                                    <thead>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="cart-product-name">Product Name</th>
+                                        <th class="cart-product-total">Total</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
+                                    @foreach($cart->all() as $item)
                                     <tr class="cart_item">
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="cart-subtotal">
-                                            <th>Cart Subtotal</th>
-                                            <td><span class="amount">${{$cart->subTotal()}}</span></td>
-                                        </tr>
+                                        <td class="cart-product-name">{{$item->product->name}}<strong class="product-quantity"> × {{$item->quantity}}</strong></td>
+                                        <td class="cart-product-total">${{$item->product->last_price}} </td>
+                                        <td></td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
                                         @if($coupon)
                                         <tr class="cart-subtotal" id="{{$coupon['id']}}">
                                             <th><span>Discount</span>
-                                                <a href="" id="removeCoupon" data-id="{{$coupon['id']}}" class="removeCoupon"><img src="{{asset('assets/front/images/trash-solid.svg')}}" class="trash"></a>
+                                            <a href="" id="removeCoupon" data-id="{{$coupon['id']}}" class="removeCoupon"><img src="{{asset('assets/front/images/trash-solid.svg')}}" class="trash"></a>
                                             </th>
                                             <td><span class="amount">-${{$discount}}</span></td>
                                         </tr>
                                         @endif
+                                        <tr class="cart-subtotal">
+                                            <th>Cart Subtotal</th>
+                                            <td><span class="amount">${{$cart->subTotal()}}</span></td>
+                                        </tr>
+                                        <tr class="order-total">
+                                            <th>Delivery price</th>
+                                            <td><strong><span class="amount">${{config('app.delivery_price')}}</span></strong></td>
+                                        </tr>
                                         <tr class="order-total">
                                             <th>Order Total</th>
-                                            <td><strong><span class="amount">${{$cart->total() - $discount}}</span></strong></td>
+                                            <td><strong><span class="amount">${{($cart->total() - $discount) + config('app.delivery_price')}}</span></strong></td>
                                         </tr>
-                                    </tfoot>
-                                </table>
+                                </tfoot>
+                            </table>
                         </div>
                         <div class="payment-method">
                             <div class="payment-accordion">

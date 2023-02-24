@@ -28,14 +28,12 @@ class CartController extends Controller
 
     public function index()
     {
-        $cart = $this->cart;
         
         $coupon = Session::get('coupon');
-
         return view('front.cart', [
             'coupon' => $coupon,
             'discount' => $coupon['discount'] ?? 0,
-            'cart' => $cart,
+            'cart' => $this->cart,
         ]);
     }
 
@@ -61,6 +59,9 @@ class CartController extends Controller
             return Response::json([
                 'message' => __('Item added to cart!'),
                 'status' => 1,
+                'quantity' => $this->cart->quantity(),
+                'total' => $this->cart->total(),
+                'carts' => $this->cart->all(),
             ], 201);
         }
 
@@ -75,7 +76,15 @@ class CartController extends Controller
             'quantity' => ['int', 'required'],
         ]);
 
-        $this->cart->update($id,  $request->post('quantity'));
+        $cart = $this->cart->update($id,  $request->post('quantity'));
+
+        if($request->expectsJson()){
+            return response()->json([
+                'total' => $this->cart->total(),
+                'quantity' => $this->cart->quantity(),
+                'subTotal' => $this->cart->subTotal(),
+            ]);
+        }
 
         return redirect()->back();
 
@@ -85,9 +94,12 @@ class CartController extends Controller
         
         Cart::destroy($id);
 
-        return  [
-            'message' => 'Item deleted!'
-        ];
+        return Response::json([
+            'quantity' => $this->cart->quantity(),
+            'total' => $this->cart->total(),
+            'carts' => $this->cart->all(),
+            'subTotal' => $this->cart->subTotal(),
+        ], 200);
 
     }
 

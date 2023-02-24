@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('coupon_user', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
-            $table->foreignId('coupon_id')->constrained('coupons')->restrictOnDelete();
-            $table->primary(['user_id', 'coupon_id']);
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('delivery_name')->after('session_id');
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('coupon_user');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('delivery_name');
+        });
     }
 };

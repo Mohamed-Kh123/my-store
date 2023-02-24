@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ColorsController;
 use App\Http\Controllers\Admin\ConfigsController;
 use App\Http\Controllers\Admin\ContactUsController;
 use App\Http\Controllers\Admin\CouponsController as AdminCouponsController;
+use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\DimensionsController;
 use App\Http\Controllers\Admin\ImagesController;
 use App\Http\Controllers\Admin\MessagesController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Admin\PaymentsController as AdminPaymentsController;
 use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\SizesController;
+use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CartController;
@@ -42,6 +44,8 @@ use App\Models\User;
 use App\Models\WishList;
 use App\Notifications\SendEmailToUserToPayOrder;
 use App\Notifications\WishListNotification;
+use App\Services\Shipping;
+use Chatify\ChatifyMessenger;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -99,11 +103,11 @@ Route::group(['middleware' => ['auth','verified']], function (){
             Route::resource('sizes', SizesController::class);
             Route::resource('users', UsersController::class);
             Route::resource('messages', MessagesController::class);
-            
+            Route::get('', [StatisticsController::class, 'index'])->name('statistic.index');
         });
         Route::get('/profile', [HomeController::class, 'getProfile'])->name('profile');
         Route::post('/ratigns', [RatingsController::class, 'store'])->name('rating.store');
-        Route::post('/coupon/remove/{id}', [CouponsController::class, 'removeCoupon'])->name('coupons.remove');
+        Route::post('/coupon/remove', [CouponsController::class, 'removeCoupon'])->name('coupons.remove');
         Route::post('/coupons', [CouponsController::class, 'store'])->name('coupons.apply');
 });
 
@@ -133,35 +137,23 @@ Route::post('/checkout', [CheckoutConttoller::class, 'store']);
 Route::get('/orders', [CheckoutConttoller::class, 'index'])->name('orders');
 Route::delete('/orders/{id}', [CheckoutConttoller::class, 'delete'])->name('order.delete');
 Route::get('orders/{order}/pay', [PaymentsController::class, 'createPayment'])->name('orders.payments.create');
-Route::any('orders/{order}/payment-intent', [PaymentsController::class, 'create'])->name('orders.paymentIntent.create');
-Route::get('orders/{order}/payment-intent/callback', [PaymentsController::class, 'confirm'])->name('orders.payments.return');
+Route::any('orders/{id}/payment-intent', [PaymentsController::class, 'create'])->name('orders.paymentIntent.create');
+Route::get('orders/payment-intent/callback/{id?}', [PaymentsController::class, 'confirm'])->name('orders.payments.return');
 Route::get('orders/{order}/payment-intent/cancel', [PaymentsController::class, 'cancel'])->name('orders.payments.cancel');
+Route::post('/webhook', [PaymentsController::class, 'webhook'])->name('webhook');
 
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 
-
+Route::get('delivery', [DeliveryController::class, 'index']);
 
 Route::get('/test', function(){
-
-        $latestProducts = Product::with(['category' => function($q){
-            $q->select('id','name');
-        }])->latest()->limit(6)->get(['id', 'name', 'price', 'discount', 'slug', 'image', 'total_ratings']);
-        $bestSales = Product::with('category')->where('number_of_sales', '>', 0)->orderBy('number_of_sales', 'DESC')->limit(6)->get(['id', 'name', 'price', 'discount', 'slug', 'image', 'total_ratings']);
-        $lapProducts = Product::with('category')->whereHas('category', function($q){
-            $q->where('name', 'lap')->select(['id', 'name']);
-        })->limit(6)->get(['id', 'name', 'price', 'discount', 'slug', 'image', 'total_ratings']);
-        $tvProducts = Product::with('category')->whereHas('category', function($q){
-            $q->where('name', 'Tv')->select(['id', 'name']);
-        })->limit(6)->get(['id', 'name', 'price', 'discount', 'slug', 'image', 'total_ratings']);
-        $trendingProducts = Product::with('category')->where('is_trending', '=', true)->limit(6)->get(['id', 'name', 'price', 'discount', 'slug', 'image', 'total_ratings']);
-
-
-        return view('welcome', [
-            // 'latestProducts' => $latestProducts,
-                // 'bestSales' => $bestSales,
-                // // 'lapProducts' => $lapProducts,
-                // // 'tvProducts' => $tvProducts,
-                // 'trendingProducts' => $trendingProducts,
-        ]);   
+    $cart = Cart::where('cookie_id', Cookie::get('cart_cookie_id'))->get();
+    $total = $cart->sum(function ($item){
+        $coupon = Session::get('coupon');
+        $discount = $coupon['discount'];
+        $total = $item->quantity * $item->product->last_price;
+        return bcsub($total, $discount);
+    });
+    dd($total);
 });

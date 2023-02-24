@@ -5,8 +5,8 @@
         <div class="container">
             <div class="breadcrumb-content">
                 <ul>
-                    <li><a href="{{ route('home') }}">Home</a></li>
-                    <li class="active">About Us</li>
+                    <li><a href="{{ route('home') }}">{{__('Home')}}</a></li>
+                    <li class="active">{{__('About Us')}}</li>
                 </ul>
             </div>
         </div>

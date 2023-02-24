@@ -21,9 +21,8 @@ class DataBaseRepository implements CartRepository
     public function all()
     {
         if (!$this->items->count()) {
-            $this->items = Cart::where('cookie_id', $this->getCookieId())
-                ->orWhere('user_id', '=', Auth::id())
-                ->get();
+            $this->items = Cart::with('product')->where('cookie_id', $this->getCookieId())
+                    ->get();
         }
 
         return $this->items;
@@ -33,7 +32,7 @@ class DataBaseRepository implements CartRepository
     {
         $items = $this->all();
         return $items->sum(function ($item) {
-            return $item->quantity * $item->product->price;
+            return $item->quantity * $item->product->last_price;
         });
     }
 
@@ -77,7 +76,7 @@ class DataBaseRepository implements CartRepository
     {
         $items = $this->all();
         return $items->sum(function ($item) {
-            return $item->product->price;
+            return $item->product->last_price;
         });
     }
 
@@ -89,7 +88,7 @@ class DataBaseRepository implements CartRepository
 
     public function update($id, $qty)
     {
-        Cart::where('id', '=', $id)->update(['quantity' => $qty]);
+        $cart = Cart::where('id', '=', $id)->update(['quantity' => $qty]);
     }
 
 

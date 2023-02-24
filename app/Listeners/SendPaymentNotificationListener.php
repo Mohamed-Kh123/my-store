@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\PaymentCreatedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Notification;
 
 class SendPaymentNotificationListener
 {
@@ -31,10 +32,12 @@ class SendPaymentNotificationListener
     {
         $payment = $event->payment;
         
-        $users = User::where('type', '=', 'super-admin')->orWhere('id', '=', $payment->order->user_id)->get();
+        $users = User::where('type', '=', 'super-admin')->get();
 
         foreach($users as $user){
             $user->notify(new PaymentCreatedNotification($payment));
         }
+
+        Notification::route('mail', $payment->order->billing_email)->notify(new PaymentCreatedNotification($payment));
     }
 }

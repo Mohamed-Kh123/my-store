@@ -23,7 +23,7 @@ class NotificationsController extends Controller
         Gate::authorize('notification.view-any');
 
         $user = User::where('type', 'super-admin')->first();
-        $notifications = $user->notifications()->get();
+        $notifications = $user->notifications()->paginate();
         
         return view('admin.notifications.index', compact('notifications'));
     }

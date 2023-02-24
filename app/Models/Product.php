@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -13,7 +14,7 @@ class Product extends Model
     protected $casts = [
         'image' => 'json'
     ];
-    
+
     protected static function booted()
     {
         static::creating(function(Product $product){
@@ -55,6 +56,17 @@ class Product extends Model
     }
 
 
+    public function scopeActive(Builder $builder)
+    {
+        $builder->where('status', 'active');
+    }
+
+    public function scopeQuantity(Builder $builder)
+    {
+        $builder->where('quantity', '>', 0);
+    }
+
+
     public function getImageUrlAttribute()
     {
         if($this->image){
@@ -93,12 +105,21 @@ class Product extends Model
         return route('wishlist.store');
     }
 
+    public function getLastPriceAttribute()
+    {
+        if($this->discount != null){
+            return $this->price  - (($this->discount / 100) * $this->price);
+        }else{
+            return $this->price;
+        }
+    }
+
    
 
     
     
     protected $appends = [
-        'image_url', 'link', 'cart_link', 'wishlist_link',
+        'image_url', 'link', 'cart_link', 'wishlist_link', 'last_price',
         
     ];
 }

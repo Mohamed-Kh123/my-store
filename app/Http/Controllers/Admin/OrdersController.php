@@ -14,11 +14,33 @@ class OrdersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('order.view-any');
+        $orders = Order::query();
+        if($request->sortBy == 'pending'){
+            $orders->where('status', 'pending');
+        }
+        if($request->sortBy == 'cancelled'){
+            $orders->where('status', 'cancelled');
+        }
+        if($request->sortBy == 'processing'){
+            $orders->where('status', 'processing');
+        }
+        if($request->sortBy == 'shipped'){
+            $orders->where('status', 'shipped');
+        }
+        if($request->sortBy == 'completed'){
+            $orders->where('status', 'completed');
+        }
+        if($request->sortBy == 'paid'){
+            $orders->where('payment_status', 'paid');
+        }
+        if($request->sortBy == 'unpaid'){
+            $orders->where('payment_status', 'unpaid');
+        }
 
-        $orders = Order::paginate();
+        $orders = $orders->latest()->paginate();
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -33,7 +55,7 @@ class OrdersController extends Controller
         Gate::authorize('order.view');
 
         $order = Order::findOrFail($id);
-        return view('admin.order.show', compact('order'));
+        return view('admin.orders.show', compact('order'));
     }
 
     /**

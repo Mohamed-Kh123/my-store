@@ -11,11 +11,6 @@ use Illuminate\View\Component;
 
 class WishList extends Component
 {
-
-    public function all()
-    {
-        
-    }
     /**
      * Create a new component instance.
      *
@@ -23,7 +18,6 @@ class WishList extends Component
      */
     public function __construct()
     {
-        // $this->items = collect([]);
     }
 
     /**
@@ -33,32 +27,6 @@ class WishList extends Component
      */
     public function render()
     {
-        
-        $items = collect([]);
-
-        if(!$items->count()){
-            $items = ModelsWishList::where('user_id', Auth::id())
-                ->orWhere('cookie_id', Cookie::get('wishlist'))
-                ->get('product_id');
-        }   
-
-
-        if($items){
-            $products = Product::whereIn('id', $items)->get();
-            $count = $products->count('id');
-        }else{
-            $count = 0;
-        }
-
-
-
-
-
-        return view('components.wish-list', [
-            'count' => $count,
-            // 'items' => $this->items,
-            // 'user' => $user,
-            // 'user_id' => $user_id,
-        ]);
+        return view('components.wish-list');
     }
 }

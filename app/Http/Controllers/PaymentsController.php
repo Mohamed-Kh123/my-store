@@ -13,12 +13,12 @@ use Illuminate\Http\Request;
 
 class PaymentsController extends Controller
 {
-  protected $pay;
+  // protected $pay;
 
-  public function __construct(PaymentMethod $pay)
-  {
-    $this->pay = $pay;
-  }
+  // public function __construct(PaymentMethod $pay)
+  // {
+  //   $this->pay = $pay;
+  // }
   public function createPayment(Order $order)
   {
     return view('front.Payments.create', [
@@ -26,16 +26,34 @@ class PaymentsController extends Controller
     ]);
   }
 
-  public function create(Order $order)
+  public function create(Request $request, $id)
   {
-    return $this->pay->create($order);
-    
+    if($request->type == 'stripe'){
+      $pay = new StripePayment();
+      return $pay->create($id);
+    }
+
+    if($request->type == 'paypal'){
+      $pay = new PaypalPayment();
+      return $pay->create($id);
+    }
   }
 
-  public function confirm(Order $order)
+  public function confirm($id=null)
   {
+    if($id){
+      $pay = new PaypalPayment();
+      return $pay->confirm($id);
+    }
 
-    return $this->pay->confirm($order);
+    $pay = new StripePayment();
+    return $pay->confirm();
 
+  }
+
+  public function webhook()
+  {
+    $pay = new StripePayment();
+    return $pay->webhook();
   }
 }

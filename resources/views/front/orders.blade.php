@@ -5,27 +5,43 @@
 
 <div class="table">
     <table class="custom-table">
-      <caption>Orders</caption>
+      <caption>{{__('Orders')}}</caption>
       <thead>
         <tr>
-          <th scope="col">Status</th>
-          <th scope="col">Payment Status</th>
-          <th scope="col">Total</th>
+          <th scope="col">{{__('Status')}}</th>
+          <th scope="col">{{__('Payment Status')}}</th>
+          <th scope="col">{{__('Total')}}</th>
           <th></th>
         </tr>
       </thead>  
       <tbody>
           @foreach($orders as $order)
               <tr id="{{$order->id}}">
-                  <td data-label="Account">{{$order->status}}</td>
-                  <td data-label="Due Date">{{$order->payment_status}}</td>
+                  <td data-label="Account">{{__("$order->status")}}</td>
+                  <td data-label="Due Date">{{__("$order->payment_status")}}</td>
                   <td data-label="Amount">${{$order->total}}</td>
                   @if($order->status == "pending" && $order->payment_status == "unpaid")
-                  <td><a href="{{route('orders.paymentIntent.create', $order->id)}}" class="btn btn-primary">Pay now!</a></td>
+                  <td><div class="dropdown">
+                      <button class="btn btn-primary" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          {{__('Pay now!')}}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <form action="{{route('orders.paymentIntent.create', $order->id)}}" method="post">
+                                @csrf
+                                <input type="hidden" name="type" value="paypal">
+                                <button class="dropdown-item" class="btn btn-primary">{{__('Pay with paypal')}}</button>
+                            </form>
+                            <form action="{{route('orders.paymentIntent.create', $order->id)}}" method="post">
+                                @csrf
+                                <input type="hidden" name="type" value="stripe">
+                                <button class="dropdown-item" class="btn btn-primary">{{__('Pay with viza')}}</button>
+                            </form>
+                        </div>
+                      </div></td>
                   @elseif($order->payment_status == "paid")
-                  <td><a href="" class="btn btn-success disabled">Paid</a></td>
+                  <td><a href="" class="btn btn-success disabled">{{__('Paid')}}</a></td>
                   @else                 
-                  <td><a href="" class="opacity-25 btn btn-dark disabled">Cancelled</a></td>
+                  <td><a href="" class="opacity-25 btn btn-dark disabled">{{__('Cancelled')}}</a></td>
                   @endif
               </tr>
           @endforeach
@@ -33,49 +49,5 @@
       </tbody>
     </table>
   </div>
-
-@endsection
-
-@section('script')
-
-<script>
- 
-    (function($){
-        $('a#delete-form').on('click', function(e){
-            e.preventDefault();
-            let id = $(this).data('id');
-            Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire(
-                'Deleted!',
-                'Your file has been deleted.',
-                'success'
-                )
-                $.ajax({
-                method: "delete",
-                url: "/orders/"+id,
-                data: {
-                    _token: $("meta[name='csrf-token']").attr("content"),
-                },
-                dataType: "json",
-                success: function (response) {
-                    $(`#${id}`).remove();
-                }
-            });
-            }
-            })
-            
-        })
-    })(jQuery)
- 
-</script>
 
 @endsection

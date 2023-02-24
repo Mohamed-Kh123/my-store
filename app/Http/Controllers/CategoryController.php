@@ -84,12 +84,16 @@ class CategoryController extends Controller
                 $products->orderBy('name', 'desc');
             }
             if($request->sortBy == 'price'){
+                $products->orderBy('price', 'desc');
+            }
+            if($request->sortBy == '-price'){
                 $products->orderBy('price', 'asc');
             }
             if($request->sortBy == '-rating'){
-                $products->whereHas('ratings', function($q){
-                    $q->orderBy(DB::raw('sum("ratings") / count("ratings")'), 'desc');
-                });
+                $products->orderBy('total_ratings', 'asc');
+            }
+            if($request->sortBy == 'rating'){
+                $products->orderBy('total_ratings', 'desc');
             }
         }
 
@@ -98,7 +102,7 @@ class CategoryController extends Controller
             return response()->json(['data' => $data]);
         }
         
-        $products = $products->get();
+        $products = $products->paginate(15);
         
         return view('front.category', [
             'categories' => $categories,

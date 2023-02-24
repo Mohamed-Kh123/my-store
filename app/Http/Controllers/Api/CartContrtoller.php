@@ -55,7 +55,7 @@ class CartContrtoller extends Controller
             'cookie_id' => Cookie::get('cart_cookie_id'),
             'product_id' => ($item instanceof Product)? $item->id : $item,
         ], [
-            'user_id' => Auth::user()->currentAccessToken()->id ?? null,
+            'user_id' => $this->getUserId(),
             'quantity' => DB::raw('quantity + ' . $qty),
         ]);
 

@@ -20,8 +20,8 @@ class ProductController extends Controller
      */
     public function show($slug)
     {   
-        $product = Product::with('dimensions')->where('slug', '=', $slug)->firstOrFail();
-        $productsInSameCategory = Product::where('category_id', '=', $product->category_id)->limit(15)->get();
+        $product = Product::active()->quantity()->with('dimensions')->where('slug', '=', $slug)->firstOrFail();
+        $productsInSameCategory = Product::active()->quantity()->where('category_id', '=', $product->category_id)->limit(15)->get();
         
         
         return view('front.single-product', [

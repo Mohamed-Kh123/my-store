@@ -9,12 +9,6 @@ class Coupon extends Model
 {
     use HasFactory;
 
-
-    public function couponUser()
-    {
-        return $this->hasMany(CouponUser::class, 'coupon_id', 'id');
-    }
-
     public function discount($total)
     {
         if($this->type == 'percent'){

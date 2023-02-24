@@ -26,24 +26,19 @@ class CouponsController extends Controller
     public function store(Request $request)
     {
 
-        $coupon = Coupon::with('couponUser')->where('code', '=', $request->code)->first();
-        // dd($coupon->end_date);
+        $coupon = Coupon::where('code', '=', $request->code)->first();
         if(!$coupon){
-            return redirect()->back()->withErrors('Coupon not found!');
+            return response()->json([
+                'message' => 'Coupon not found!',
+            ]);
         }
         if($coupon->end_date <= now() || $coupon->start_date >= now()){
-            return redirect()->back()->withErrors('Coupon expired!');
+            return response()->json([
+                'message' => 'Coupon expired!',
+            ]);
         }
-        if($coupon->max_use == 5){
-            return redirect()->back()->withErrors('Coupon expired!');
-        }      
 
-        $coupon->couponUser()->create([
-            'user_id' => Auth::id(),
-        ]);
-
-        $coupon->max_use = $coupon->max_use + 1;
-        $coupon->save();
+        
         
         Session::put('coupon', [
             'discount' => $coupon->discount($this->cart->total()),
@@ -51,22 +46,30 @@ class CouponsController extends Controller
             'id' => $coupon->id,
         ]);
 
-        
+        if($request->expectsJson()){
+            $coupon = Session::get('coupon');
+            $newTotal = $this->cart->total() - ($coupon['discount'] ?? 0);
+            $subTotal = $this->cart->subTotal();
+            $quantity = $this->cart->quantity();
+            return [
+                'subTotal' => $subTotal,
+                'newTotal' => $newTotal,
+                'id' => $coupon['id'],
+                'discount' => $coupon['discount'] ?? 0,
+                'quantity' => $quantity,
+                'route' => route('coupons.remove'),
+            ];
+        }        
 
-        return redirect()->back()->with('success', 'Coupon has been applied!');
+        return redirect()->back()->with('success', __('Coupon has been applied!'));
     }
 
-    public function removeCoupon($id)
+    public function removeCoupon(Request $request)
     {
         Session::forget('coupon');
-        CouponUser::where('user_id', Auth::id())->where('coupon_id', $id)->delete();
-        $coupon = Coupon::where('id', $id)->first();
-        $coupon->update([
-            'max_use' => DB::raw('max_use - 1'),
-        ]);
-        $coupon->save();
-        return  response()->json([
-            'message' => 'Coupon has been removed!',
-        ], 200);
+        if($request->expectsJson()){
+            redirect()->back()->with('success', __('Coupon has been removed!'));
+        }
+        return  redirect()->back()->with('success', __('Coupon has been removed!'));
     }
 }

@@ -47,7 +47,7 @@ class PaymentCreatedNotification extends Notification
         return (new MailMessage)
                     ->subject('Payment Created!')
                     ->line('The invoice for this order #' .$this->payment->order->number.' has been successfully paid')
-                    ->action('View Order', route('order.show', $this->payment->order_id))
+                    ->action('View Order', url(route('orders')))
                     ->line('Thank you for shopping wish us!');
     }
 

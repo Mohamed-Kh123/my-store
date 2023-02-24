@@ -19,8 +19,9 @@ class PaypalPayment implements PaymentMethod
     {
         $this->client = App::make('paypal.client');
     }
-    public function create(Order $order)
+    public function create($id)
     {
+        $order = Order::findOrFail($id);
         if($order->payment_status == 'paid'){
             return redirect()->route('orders')->with('success', 'Order already paid!');
         }
@@ -76,8 +77,9 @@ class PaypalPayment implements PaymentMethod
         }
     }
 
-    public function confirm(Order $order)
+    public function confirm($id)
     {
+        $order = Order::findOrFail($id);
         if($order->payment_status == 'paid'){
             return redirect()->route('orders')->with('success', 'Order already paid!');
         }

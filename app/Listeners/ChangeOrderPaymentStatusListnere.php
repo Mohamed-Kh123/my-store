@@ -27,10 +27,10 @@ class ChangeOrderPaymentStatusListnere
      */
     public function handle(PaymentCreated $event)
     {
-        $payment = $event->payment;
-        $order = Order::where('id', $payment->order_id)->first();
-        $order->payment_status = "paid";
-        $order->status = "processing";
-        $order->save();
+        // $payment = $event->payment;
+        // $order = Order::where('id', $payment->order_id)->first();
+        // $order->payment_status = "paid";
+        // $order->status = "processing";
+        // $order->save();
     }
 }
